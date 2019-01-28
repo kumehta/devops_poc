@@ -1,0 +1,57 @@
+# =============================================================================
+# Defined Custom Facts: Devops                      [Giant]
+# -----------------------------------------------------------------------------
+# Fact:              Description:                  Options: (Case sensative)
+# -----------------  ----------------------------  ----------------------------
+# %{::devops_platform}  Platform.                     platform_name.
+# %{::devops_func_env}  Functional Environment.       production, preproduction,
+#                                                     integration, development.
+# %{::devops_sub_env}   Operational Environment.      dev, st, cob, mig, sit, sup.
+# %{::devops_dc_loc}    Data Centre Location.         acp, bbp, lbg.
+# %{::devops_mc_role}   Designated Machine Role.      esbb, esbo, fms, ftg, mqgw,
+#                                                     mqhub, nfs, oracle_db,
+#                                                     oracle_dg, mqs, iib.
+# =============================================================================
+---
+
+# Hiera version configuration format.
+version: 5
+
+# Define default options.
+defaults:
+  # Relative path to hiera directory for yaml data configuration files.
+  datadir: hieradata
+  data_hash: yaml_data
+
+# Note! Paths are relative to ..datadir:..
+hierarchy:
+  - name: "Per-node data source [6]"
+    path: "node/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::trusted.certname}.yaml"
+
+  - name: "Role specific data sources [5]"
+    globs:
+      - "role/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::facts.devops_sub_env}/%{::facts.devops_mc_role}/*.yaml"
+      - "role/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::facts.devops_sub_env}/%{::facts.devops_mc_role}.yaml"
+      - "role/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::facts.devops_mc_role}/*.yaml"
+      - "role/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::facts.devops_mc_role}.yaml"
+#     - "role/%{::facts.devops_platform}/%{::facts.devops_mc_role}/*.yaml"
+#     - "role/%{::facts.devops_platform}/%{::facts.devops_mc_role}.yaml"
+
+  - name: "Operating system specific data sources [4]"
+    paths:
+      - "os/%{::operatingsystem}/%{::operatingsystemmajrelease}.yaml"
+      - "os/%{::operatingsystem}.yaml"
+
+  - name: "Environment specific data sources [3]"
+    paths:
+      - "environment/%{::facts.devops_platform}/%{::facts.devops_func_env}/%{::facts.devops_sub_env}.yaml"
+      - "environment/%{::facts.devops_platform}/%{::facts.devops_func_env}.yaml"
+      - "environment/%{::facts.devops_platform}.yaml"
+
+  - name: "Enterprise wide common data source [1]"
+    path: "common.yaml"
+
+
+# -----------------------------------------------------------------------------
+# End of file.
+# -----------------------------------------------------------------------------
