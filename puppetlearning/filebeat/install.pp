@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
-# Author  = Kunal Mehta (Capgemini on behalf of RMG.
+# Author  = Kunal Mehta
 # Date    = 2019/01/30
 # Version = 1.0 'filebeat/install.pp'
-# Purpose = This is the DevOps Tooling Platform
+# Purpose = This is the
 #           'filebeat/install' profile.
 #
 # -----------------------------------------------------------------------------
