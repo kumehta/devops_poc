@@ -1,0 +1,100 @@
+# filebeat DevOps/Secure.
+---
+
+profile::unix::groups:
+  'filebeat':
+    ensure: 'present'
+    gid:    '1094'
+
+profile::unix::groups::realize:
+  - 'filebeat'
+
+profile::unix::users:
+  'filebeat':
+    ensure:           'present'
+    uid:              '1009'
+    gid:              '1094'
+    groups:           ['filebeat']
+    shell:            '/sbin/nologin'
+    home:             '/app/filebeat'
+    managehome:       true
+    password_max_age: '12'
+    password_min_age: '0'
+    password:         '!'
+
+profile::unix::users::realize:
+  - 'filebeat'
+
+profile::unix::files:
+  /app:
+    ensure: 'directory'
+    owner:  '0'
+    group:  '0'
+    mode:   '0755'
+  /app/filebeat:
+    ensure: 'directory'
+    owner:  'filebeat'
+    group:  'filebeat'
+    mode:   '0755'
+    require: File[/app]
+  /download:
+    ensure: 'directory'
+    owner:  '0'
+    group:  '0'
+    mode:   '0755'
+  /download/.puppet:
+    ensure: 'directory'
+    owner:  '0'
+    group:  '0'
+    mode:   '0755'
+  /usr/share:
+    ensure: 'directory'
+    owner:  '0'
+    group:  '0'
+    mode:   '0755'
+  /usr/share/logstash:
+    ensure: 'link'
+    owner:  '0'
+    group:  '0'
+    target: '/app/logstash'
+    require: File[/usr/share]
+  /var/log:
+    ensure: 'directory'
+    owner:  '0'
+    group:  '0'
+    mode:   '0755'
+  /var/log/filebeat:
+    ensure: 'directory'
+    owner:  'filebeat'
+    group:  'filebeat'
+    mode:   '2775'
+    require: File[/var/log]
+
+
+profile::unix::os::redhat::packages:
+  'java-1.8.0-openjdk':
+    ensure: latest
+  'java-1.8.0-openjdk-devel':
+    ensure: latest
+  'java-1.8.0-openjdk-headless':
+    ensure: latest
+  'sudo':
+    ensure: latest
+
+profile::devops::filebeat::install::nexus_repo: SOFTWARE-RHEL
+profile::devops::filebeat::install::package: ''
+profile::devops::filebeat::install::download_dir: /download
+profile::devops::filebeat::install::filebeat_home_dir: /app/filebeat
+
+#######filebeat Server Settings ##############################
+
+profile::devops::filebeat::config::filebeat_config_file: /etc/filebeat/filebeat.yml
+profile::devops::filebeat::config::filebeat_owner: filebeat
+profile::devops::filebeat::config::filebeat_group: filebeat
+
+profile::devops::filebeat::config::log_dir:  /var/log/filebeat
+profile::devops::filebeat::config::data_dir: /var/lib/filebeat
+
+profile::devops::filebeat::init_service_template: profile/devops/secure/filebeat.service.erb
+
+#################################################################################
